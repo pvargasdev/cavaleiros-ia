@@ -1,0 +1,19 @@
+O mapa é uma tabela 42x42, com cada espaço recebendo um desses valores.
+
+0	Partida/Entrada do santuário
+1	Casa de Áries
+2	Casa de Touro
+3	Casa de Gêmeos
+4	Casa de Câncer
+5	Casa de Leão
+6	Casa de Virgem
+7	Casa de Libra
+8	Casa de Escorpião
+9	Casa de Sagitário
+10	Casa de Capricórnio
+11	Casa de Aquário
+12	Casa de Peixes
+13	Chegada/Casa do Grande Mestre
+14	Montanhoso: +200 minutos
+15	Plano: +1 minuto
+16	Rochoso: +5 minutos
