@@ -27,21 +27,16 @@ function Mapa({ csvPersonalizado, posicaoAgente, rastro }) {
 
   return (
     <div className="w-full h-full flex items-center justify-center p-2">
-      {/* MUDANÇAS AQUI:
-         1. aspect-square: Garante que o mapa seja sempre quadrado (não retangular).
-         2. max-h-full e max-w-full: Garante que ele nunca estoure o pai (resolve o zoom/corte).
-         3. object-contain: Comportamento de imagem para caber na tela.
-      */}
       <div 
         className="grid border-2 border-black bg-black shadow-2xl relative"
         style={{ 
           gridTemplateColumns: `repeat(${numColunas}, 1fr)`,
           gridTemplateRows: `repeat(${numLinhas}, 1fr)`,
-          aspectRatio: '1 / 1', // Força ser quadrado perfeito
-          height: '100%',       // Tenta ocupar a altura
-          maxHeight: '100%',    // Mas não passa do limite
-          width: 'auto',        // Largura se ajusta à altura
-          maxWidth: '100%'      // Mas não passa da largura da tela
+          aspectRatio: '1 / 1',
+          height: '100%',
+          maxHeight: '100%',
+          width: 'auto',
+          maxWidth: '100%'
         }}
       >
         {matrizMapa.map((linha, rowIndex) => (
@@ -58,16 +53,10 @@ function Mapa({ csvPersonalizado, posicaoAgente, rastro }) {
                 key={`${rowIndex}-${colIndex}`}
                 className={`relative w-full h-full ${getTileColor(tileId)} border-[0.1px] border-black/20`}
               >
-                {/* RASTRO: Overlay Absoluto */}
                 {isRastro && !isAgenteAqui && (
                    <div className="absolute inset-0 bg-green-500/40 pointer-events-none"></div>
                 )}
 
-                {/* PERSONAGEM: 
-                    Agora ele é absolute. Ele flutua SOBRE a célula, 
-                    não empurrando as bordas.
-                    'inset-1' cria uma margem para ele ficar menor que a célula.
-                */}
                 {isAgenteAqui && (
                   <div className="absolute inset-[10%] bg-green-500 border border-white shadow-sm z-10 transition-all duration-100 rounded-sm"></div>
                 )}

@@ -3,25 +3,23 @@
  * Versão Corrigida - Funções Globais
  */
 'use strict';
-
 const fs = require('fs');
+const { TERRENOS } = require('../constantes');
 
-// ─── 1. DEFINIÇÕES GLOBAIS (Devem estar no topo) ───
-
-const CUSTO_TERRENO = {
-  14: 200, // Montanhoso
-  15: 1,   // Plano
-  16: 5,   // Rochoso
-  0: 1,    // Partida
-  13: 1    // Chegada
+const MAPA_CUSTOS = {
+  [TERRENOS.MONTANHOSO.id]: TERRENOS.MONTANHOSO.custo,
+  [TERRENOS.PLANO.id]:      TERRENOS.PLANO.custo,
+  [TERRENOS.ROCHOSO.id]:    TERRENOS.ROCHOSO.custo,
+  [TERRENOS.INICIO.id]:     TERRENOS.INICIO.custo,
+  [TERRENOS.FIM.id]:        TERRENOS.FIM.custo
 };
 
-// Esta função precisa estar solta no arquivo, fora de qualquer outra função
 function obterCustoMovimento(celula) {
   const numero = Number(celula);
-  if (CUSTO_TERRENO[numero] !== undefined) return CUSTO_TERRENO[numero];
-  if (numero >= 1 && numero <= 12) return 1; // Casas do Zodíaco
-  return 1;
+  if (MAPA_CUSTOS[numero] !== undefined) return MAPA_CUSTOS[numero];
+  // Casas do Zodíaco (1 a 12)
+  if (numero >= 1 && numero <= 12) return TERRENOS.CUSTO_MOVIMENTO_CASA;
+  return 1; 
 }
 
 function distanciaManhattan(a, b) {

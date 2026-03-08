@@ -6,8 +6,6 @@ import Game from './pages/game/Game'
 
 function App() {
   return (
-
-    // React Router
     
     <HashRouter>
       <div className='w-screen min-h-screen bg-gray-900'>
