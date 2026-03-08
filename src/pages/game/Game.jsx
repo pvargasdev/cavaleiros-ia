@@ -1,94 +1,152 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import Mapa from '../../components/mapa/Mapa'
+
+// --- IMPORTAÇÕES CRITICAS (Verifique se as pastas batem com isso) ---
+import Mapa from '../../components/mapa/Mapa'       // Verifica se é Mapa.jsx ou mapa.jsx
 import Caminho from '../../components/caminho/Caminho'
 import Status from '../../components/status/Status'
+// -------------------------------------------------------------------
+
+// Importa o mapa padrão como texto bruto (raw) para evitar erros de fetch
+import mapaPadraoTxt from '../../assets/Mapa.csv?raw' 
 
 function Game() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Estados para guardar os textos lidos dos arquivos
+  // Estados
   const [csvMapaData, setCsvMapaData] = useState(null)
-  const [csvChefesData, setCsvChefesData] = useState(null)
-  
-  // Estado para guardar o JSON retornado pelo backend
   const [resultadoIA, setResultadoIA] = useState(null)
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(null)
+  
+  // Animação
+  const [passoAtual, setPassoAtual] = useState(0)
+  const velocidadeAnimacao = 100 
 
-  const { 
-    arquivoMapa, mapaPersonalizado,
-    arquivoChefes, chefesPersonalizados 
-  } = location.state || {}
+  const { arquivoMapa, mapaPersonalizado } = location.state || {}
+
+  // Função para ler arquivo do input file
+  const lerArquivoUpload = (arquivo) => new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => resolve(e.target.result)
+      reader.readAsText(arquivo)
+  })
 
   useEffect(() => {
-    if (!location.state) {
-      navigate('/')
-      return
-    }
+    // Se tentar acessar direto sem passar pela Home, volta
+    if (!location.state) { navigate('/'); return }
 
-    // Função assíncrona para ler um arquivo usando FileReader
-    const lerArquivo = (arquivo) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader()
-        reader.onload = (e) => resolve(e.target.result)
-        reader.readAsText(arquivo)
-      })
-    }
+    const processarJogo = async () => {
+      try {
+        setCarregando(true)
+        setErro(null)
+        let csvParaEnviar = '';
 
-    const prepararDados = async () => {
-      let mapaTexto = null
-      let chefesTexto = null
+        // 1. CARREGAR O CSV
+        if (mapaPersonalizado && arquivoMapa) {
+          csvParaEnviar = await lerArquivoUpload(arquivoMapa)
+        } else {
+          // Usa o import do topo. Se falhar, string vazia.
+          csvParaEnviar = mapaPadraoTxt || "";
+        }
 
-      // Lê o mapa se for personalizado
-      if (mapaPersonalizado && arquivoMapa) {
-        mapaTexto = await lerArquivo(arquivoMapa)
-        setCsvMapaData(mapaTexto)
+        console.log("CSV sendo enviado (primeiras 50 letras):", csvParaEnviar.slice(0, 50));
+
+        if (!csvParaEnviar || csvParaEnviar.length < 10) {
+             throw new Error("O arquivo de mapa está vazio ou não foi carregado corretamente.");
+        }
+
+        setCsvMapaData(csvParaEnviar)
+
+        // 2. CHAMAR O ELECTRON (BACKEND)
+        if (window.electronAPI) {
+            const dadosCalculados = await window.electronAPI.calcularJogo(csvParaEnviar);
+            setResultadoIA(dadosCalculados);
+        } else {
+            console.warn("Ambiente web detectado (sem Electron).");
+            // Para testes na web (sem electron), você pode comentar a linha abaixo se quiser ver o layout vazio
+            // throw new Error("Este jogo deve ser executado dentro do Electron.");
+        }
+
+      } catch (error) {
+        console.error("Erro no Game.jsx:", error)
+        setErro(error.message)
+      } finally {
+        setCarregando(false)
       }
-
-      // Lê os chefes se for personalizado
-      if (chefesPersonalizados && arquivoChefes) {
-        chefesTexto = await lerArquivo(arquivoChefes)
-        setCsvChefesData(chefesTexto)
-      }
-
-      // CHAMADA PARA O BACKEND VEM AQUI!
-     
-      // Simulação para remover o loading enquanto não tem backend
-      setTimeout(() => setCarregando(false), 500)
     }
 
-    prepararDados()
+    processarJogo()
+  }, [location.state, navigate, arquivoMapa, mapaPersonalizado])
 
-  }, [location.state, navigate, arquivoMapa, mapaPersonalizado, arquivoChefes, chefesPersonalizados])
+  // Timer da animação
+  useEffect(() => {
+    let intervalo = null
+    if (!erro && resultadoIA?.caminho && passoAtual < resultadoIA.caminho.length - 1) {
+      intervalo = setInterval(() => {
+        setPassoAtual((prev) => prev + 1)
+      }, velocidadeAnimacao)
+    }
+    return () => clearInterval(intervalo)
+  }, [resultadoIA, passoAtual, erro])
 
+  // Dados visuais
+  const dadosVisualizacao = useMemo(() => {
+    if (!resultadoIA?.caminho) return { agente: null, rastro: [] }
+    return { 
+      agente: resultadoIA.caminho[passoAtual], 
+      rastro: resultadoIA.caminho.slice(0, passoAtual + 1) 
+    }
+  }, [resultadoIA, passoAtual])
+
+  // --- RENDERIZAÇÃO ---
   if (carregando) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
-        Calculando rota com A*...
+      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center text-white gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <p>Processando Inteligência Artificial...</p>
+      </div>
+    )
+  }
+
+  if (erro) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center text-white gap-6 p-8">
+        <div className="text-red-500 text-6xl">⚠️</div>
+        <h2 className="text-2xl font-bold">Erro de Execução</h2>
+        <div className="bg-red-900/20 border border-red-500 p-6 rounded max-w-2xl text-center">
+          <p className="text-red-200">{erro}</p>
+        </div>
+        <button onClick={() => navigate('/')} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition">
+          Voltar
+        </button>
       </div>
     )
   }
 
   return (
-    <div className="w-full min-h-screen lg:h-screen bg-gray-900 text-white flex flex-col p-4 gap-4 overflow-y-auto lg:overflow-hidden">
-      
-      <div className="flex flex-col lg:flex-row flex-[2] gap-4 lg:min-h-0">
-        <div className="flex-[3] min-h-[50vh] lg:min-h-0 bg-gray-800 border-2 border-gray-400 p-4 overflow-auto flex items-center justify-center relative">
-          <Mapa csvPersonalizado={csvMapaData} />
+    <div className="w-full h-screen bg-gray-900 text-white flex flex-col p-4 gap-4 overflow-hidden">
+      <div className="flex flex-col lg:flex-row flex-1 gap-4 min-h-0 overflow-hidden">
+        
+        {/* O ERRO ESTAVA AQUI: O componente Mapa não estava importado */}
+        <div className="flex-[3] bg-gray-800 border border-gray-600 p-2 rounded flex items-center justify-center overflow-hidden relative">
+           <Mapa 
+            csvPersonalizado={csvMapaData} 
+            posicaoAgente={dadosVisualizacao.agente}
+            rastro={dadosVisualizacao.rastro}
+          />
         </div>
-        <div className="flex-[1] min-h-[40vh] lg:min-h-0 bg-gray-800 border-2 border-gray-400 p-4 overflow-y-auto">
-          {/* Vai se passar resultadoIA.caminho e resultadoIA.batalhas para preencher isso depois */}
-          <Caminho dadosIa={resultadoIA} />
+
+        <div className="flex-[1] bg-gray-800 border border-gray-600 p-2 rounded overflow-y-auto">
+          <Caminho dadosIa={resultadoIA} passoAtual={passoAtual} />
         </div>
       </div>
-
-      <div className="flex flex-col lg:flex-row flex-[1] gap-4 lg:min-h-0">
-        <div className="flex-1 bg-gray-800 border-2 border-gray-400 p-4 overflow-y-auto">
-          {/* Aqui vai se passar o resultadoIA.tempo_total */}
+      <div className="flex h-48 gap-4 shrink-0">
+        <div className="flex-1 bg-gray-800 border border-gray-600 p-2 rounded overflow-y-auto">
           <Status tipo="geral" dadosIa={resultadoIA} />
         </div>
-        <div className="flex-1 bg-gray-800 border-2 border-gray-400 p-4 overflow-y-auto">
+        <div className="flex-1 bg-gray-800 border border-gray-600 p-2 rounded overflow-y-auto">
           <Status tipo="personagens" dadosIa={resultadoIA} />
         </div>
       </div>

@@ -2,14 +2,32 @@ import React from 'react'
 
 function Status({ tipo, dadosIa }) {
   
+  // Proteção: Se não tiver dados ainda, não renderiza nada complexo
+  if (!dadosIa && tipo === 'geral') {
+    return (
+      <div className="flex flex-col h-full p-2">
+        <h2 className="text-lg font-bold mb-2 text-gray-500">Aguardando dados...</h2>
+      </div>
+    )
+  }
+
   if (tipo === 'geral') {
     return (
       <div className="flex flex-col h-full">
-        <h2 className="text-lg font-bold mb-2 text-gray-300">Outros Status / Batalhas</h2>
-        <div className="flex-1 bg-gray-900 p-3 rounded-md text-sm font-mono text-green-400">
-          <p>{'>'} Custo Total Atual: {dadosIa ? `${dadosIa.tempo_total} min` : ''}</p>
-          <p>{'>'} Nodos Visitados: {dadosIa ? 'Calculado' : ''}</p>
-          <p>{'>'} Status da Missão: {dadosIa?.sucesso ? 'Atena Salva' : 'Em andamento'}</p>
+        <h2 className="text-lg font-bold mb-2 text-gray-300">Resumo da Missão</h2>
+        <div className="flex-1 bg-gray-900 p-3 rounded-md text-sm font-mono text-green-400 border border-gray-700">
+          <p>{'>'} Tempo Total: <span className="text-white">{dadosIa?.tempo_total ?? 0} min</span></p>
+          <p>{'>'} Passos: <span className="text-white">{dadosIa?.caminho?.length ?? 0}</span></p>
+          <p>{'>'} Status: {dadosIa?.sucesso ? <span className="text-blue-400">ATENA SALVA!</span> : <span className="text-red-500">FALHA NA MISSÃO</span>}</p>
+          
+          {/* Mostra detalhes extras se existirem */}
+          {dadosIa?.detalhes && (
+             <div className="mt-2 pt-2 border-t border-gray-800 text-xs text-gray-500">
+                <p>Caminhada: {dadosIa.detalhes.tempo_caminhada} min</p>
+                <p>Vivos: {dadosIa.detalhes.cavaleiros_vivos?.join(', ')}</p>
+                <p>Mortos: {dadosIa.detalhes.cavaleiros_mortos?.join(', ')}</p>
+             </div>
+          )}
         </div>
       </div>
     )
@@ -18,39 +36,27 @@ function Status({ tipo, dadosIa }) {
   if (tipo === 'personagens') {
     return (
       <div className="flex flex-col h-full overflow-y-auto pr-2">
-        
-        {/* 5 Cavaleiros de Bronze com 5 pontos de energia */}
-        <h2 className="text-lg font-bold mb-2 text-gray-300">Energia dos Cavaleiros</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 text-sm mb-4">
-          
-        </div>
-
-        {/* 12 Cavaleiros de Ouro */}
-        <h2 className="text-lg font-bold mb-2 text-gray-300 border-t border-gray-600 pt-2">
-          Status dos 12 Cavaleiros de Ouro
-        </h2>
+        <h2 className="text-lg font-bold mb-2 text-gray-300">Status dos 12 Cavaleiros de Ouro</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
           {['Áries', 'Touro', 'Gêmeos', 'Câncer', 'Leão', 'Virgem', 'Libra', 'Escorpião', 'Sagitário', 'Capricórnio', 'Aquário', 'Peixes'].map((casa, index) => {
             
-            // Lógica para verificar se o cavaleiro foi derrotado pela IA
             let foiDerrotado = false;
             
-            if (dadosIa && dadosIa.batalhas) {
-              // Remove acentos e deixa minúsculo
-              const nomeCasaLimpo = casa.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            // Lógica blindada contra erros de renderização
+            if (dadosIa?.batalhas && Array.isArray(dadosIa.batalhas)) {
+              const nomeCasaLimpo = (casa || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
               
-              // Busca no array de batalhas do backend se há alguma vitória nessa casa
               foiDerrotado = dadosIa.batalhas.some(batalha => {
-                const localLimpo = batalha.local.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                // Garante que batalha.local existe antes de tentar normalizar
+                const localStr = batalha.local || ""; 
+                const localLimpo = localStr.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
                 return localLimpo.includes(nomeCasaLimpo) && batalha.venceu;
               });
             }
 
             return (
-              <div key={index} className="bg-gray-800 p-2 rounded border border-gray-600 flex justify-between">
+              <div key={index} className={`p-2 rounded border flex justify-between transition-colors ${foiDerrotado ? 'bg-gray-800 border-gray-700 opacity-50' : 'bg-gray-800 border-red-900/50'}`}>
                 <span className="text-gray-300">{casa}</span>
-
-                {/* Renderização Condicional com base na variável foiDerrotado */}
                 <span className={`font-bold ${foiDerrotado ? 'text-gray-500 line-through' : 'text-red-400'}`}>
                   {foiDerrotado ? 'Derrotado' : 'Vivo'}
                 </span> 
@@ -58,7 +64,6 @@ function Status({ tipo, dadosIa }) {
             )
           })}
         </div>
-
       </div>
     )
   }
