@@ -13,20 +13,20 @@ function Status({ tipo, dadosIa, batalhasRealizadas = [], passoAtual, custoReal,
 
     return (
       <div className="flex flex-col h-full gap-2 font-mono">
-        <h2 className="text-lg font-bold text-gray-300 border-b border-gray-600 pb-1">STATUS DA MISSÃO</h2>
+        <h2 className="text-lg font-bold text-gray-300 border-b border-gray-600 pb-1">ESTATÍSTICAS</h2>
         <div className="flex-1 flex flex-col gap-2">
             <div className="bg-gray-800 p-2 border border-white text-sm">
                 <p className="text-gray-400 uppercase mb-1">Situação:</p>
                 {chegouAoFim ? (
                     dadosIa.sucesso ? 
-                    <span className="text-green-400 font-bold text-xl"> {" >> "} ATENA SALVA</span> : 
-                    <span className="text-red-500 font-bold text-xl"> {" >> "} FALHA CRÍTICA</span>
+                    <span className="text-green-400 font-bold text-xl"> SUCESSO</span> : 
+                    <span className="text-red-500 font-bold text-xl"> FRACASSO</span>
                 ) : (
-                    <span className="text-blue-400 font-bold text-xl"> {" >> "} EM ANDAMENTO</span>
+                    <span className="text-blue-400 font-bold text-xl"> EM ANDAMENTO</span>
                 )}
             </div>
             <div className="bg-gray-800 p-2 border border-white text-sm">
-                <p className="text-gray-400 uppercase mb-1">Custo Total (Terreno+Luta):</p>
+                <p className="text-gray-400 uppercase mb-1">Custo Total:</p>
                 <p className="text-white text-2xl font-bold">{custoDisplay} min</p>
             </div>
         </div>
@@ -37,7 +37,7 @@ function Status({ tipo, dadosIa, batalhasRealizadas = [], passoAtual, custoReal,
   if (tipo === 'personagens') {
     return (
       <div className="flex flex-col h-full font-mono">
-        <h2 className="text-lg font-bold mb-2 text-gray-300 border-b border-gray-600 pb-1">EQUIPE (5 Vidas)</h2>
+        <h2 className="text-lg font-bold mb-2 text-gray-300 border-b border-gray-600 pb-1">PERSONAGENS</h2>
         <div className="grid grid-cols-5 gap-2 h-full">
           {listaHerois.map((heroi) => {
             let dano = 0

@@ -99,14 +99,14 @@ function Game() {
 
   return (
     <div className="w-full h-screen bg-gray-900 text-white flex flex-col p-4 gap-4 overflow-hidden font-mono">
-      <div className="flex items-center justify-between bg-gray-800 p-2 border border-white">
-        <button onClick={handleVoltarMenu} className="px-4 py-1 bg-red-900/30 border border-red-500 text-red-200 text-sm"> &lt;&lt; MENU </button>
+      <div className="flex items-center justify-between bg-gray-800 p-2 text-white border-gray-600">
+        <button onClick={handleVoltarMenu} className="px-4 py-1 bg-red-900/30 border border-red-500 text-red-200 text-sm"> SAIR </button>
         <div className="flex gap-4">
             <button onClick={handleReiniciar} className="px-3 py-1 bg-gray-700 border border-gray-500 text-sm">↺ REINICIAR</button>
             <button onClick={handlePausar} className="px-6 py-1 bg-blue-900 border border-blue-500 font-bold min-w-[130px]">{pausado ? "▶ CONTINUAR" : "⏸ PAUSAR"}</button>
             <button onClick={handleFim} className="px-3 py-1 bg-gray-700 border border-gray-500 text-sm">AVANÇAR ⏭</button>
         </div>
-        <span className="text-xs text-gray-400 px-4">PASSO: {passoAtual} / {resultadoIA?.caminho?.length || 0}</span>
+        <span className="text-xs text-gray-400 px-4">PASSO: {passoAtual}</span>
       </div>
       <div className="flex flex-col lg:flex-row flex-1 gap-4 min-h-0 overflow-hidden">
         <div className="flex-[3] bg-gray-800 border border-gray-600 p-2 flex items-center justify-center overflow-hidden relative">

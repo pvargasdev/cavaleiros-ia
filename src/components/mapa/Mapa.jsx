@@ -4,7 +4,7 @@ import mapaBaseUrl from '../../assets/Mapa.csv?raw'
 function getTileColor(tileId) {
   const id = parseInt(tileId, 10)
   if (id === 0) return 'bg-red-600' // Start
-  if (id === 13) return 'bg-blue-600' // Goal
+  if (id === 13) return 'bg-blue-600' // Fim
   if (id === 14) return 'bg-gray-700' // Montanha
   if (id === 15) return 'bg-gray-300' // Plano
   if (id === 16) return 'bg-stone-500' // Rochoso

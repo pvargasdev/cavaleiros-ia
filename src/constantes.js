@@ -8,7 +8,7 @@ export const TERRENOS = {
   MONTANHOSO: { id: 14, custo: 200, nome: 'Montanhoso' },
   PLANO: { id: 15, custo: 1, nome: 'Plano' },
   ROCHOSO: { id: 16, custo: 5, nome: 'Rochoso' },
-  CUSTO_MOVIMENTO_CASA: 0
+  CUSTO_MOVIMENTO_CASA: 1
 };
 
 export const PADRAO_CAVALEIROS = [
