@@ -2,6 +2,8 @@ import React from 'react'
 import { PADRAO_CAVALEIROS } from '../../constantes'
 
 function Status({ tipo, dadosIa, batalhasRealizadas = [], passoAtual, custoReal, cavaleiros }) {
+  const listaHerois = (cavaleiros && cavaleiros.length > 0) ? cavaleiros : (PADRAO_CAVALEIROS || [])
+
   if (!dadosIa && tipo === 'geral') return null
 
   if (tipo === 'geral') {
@@ -17,10 +19,10 @@ function Status({ tipo, dadosIa, batalhasRealizadas = [], passoAtual, custoReal,
                 <p className="text-gray-400 uppercase mb-1">Situação:</p>
                 {chegouAoFim ? (
                     dadosIa.sucesso ? 
-                    <span className="text-green-400 font-bold text-xl"> {">>"} ATENA SALVA</span> : 
-                    <span className="text-red-500 font-bold text-xl"> {">>"} FALHA CRÍTICA</span>
+                    <span className="text-green-400 font-bold text-xl"> {" >> "} ATENA SALVA</span> : 
+                    <span className="text-red-500 font-bold text-xl"> {" >> "} FALHA CRÍTICA</span>
                 ) : (
-                    <span className="text-blue-400 font-bold text-xl"> {">>"} EM ANDAMENTO</span>
+                    <span className="text-blue-400 font-bold text-xl"> {" >> "} EM ANDAMENTO</span>
                 )}
             </div>
             <div className="bg-gray-800 p-2 border border-white text-sm">
@@ -33,8 +35,6 @@ function Status({ tipo, dadosIa, batalhasRealizadas = [], passoAtual, custoReal,
   }
 
   if (tipo === 'personagens') {
-    const listaHerois = (cavaleiros && cavaleiros.length > 0) ? cavaleiros : PADRAO_CAVALEIROS
-
     return (
       <div className="flex flex-col h-full font-mono">
         <h2 className="text-lg font-bold mb-2 text-gray-300 border-b border-gray-600 pb-1">EQUIPE (5 Vidas)</h2>

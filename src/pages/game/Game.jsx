@@ -19,7 +19,7 @@ function Game() {
   const velocidadeAnimacao = 150 
 
   const { arquivoMapa, mapaPersonalizado, configPersonalizada } = location.state || {}
-  const cavaleirosEmJogo = configPersonalizada?.cavaleiros || PADRAO_CAVALEIROS
+  const cavaleirosEmJogo = configPersonalizada?.cavaleiros || PADRAO_CAVALEIROS || []
 
   useEffect(() => {
     if (!location.state) { navigate('/'); return }
